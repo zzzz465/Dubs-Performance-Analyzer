@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Reflection;
 using Verse;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 
 namespace Analyzer.Profiling
 {
