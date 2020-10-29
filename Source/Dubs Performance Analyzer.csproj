@@ -43,7 +43,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ModEntry.cs" />
+    <Compile Include="WebSocket/ProfileLog.cs" />
+    <Compile Include="WebSocket/WebSocket.cs" />
     <Compile Include="Fixes\Fix.cs" />
     <Compile Include="Fixes\FixPatches.cs" />
     <Compile Include="Performance\Patches\H_DrawNamesFix.cs" />

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using Analyzer.WebSocket;
 
 namespace Analyzer.Profiling
 {
@@ -50,7 +51,8 @@ namespace Analyzer.Profiling
         public static void BeginUpdate()
         {
 #if DEBUG
-            if (!Analyzer.CurrentlyProfiling) return;
+            // if (!Analyzer.CurrentlyProfiling) return;
+            if (Analyzer.CurrentlyPaused) return;
 
             if (midUpdate) ThreadSafeLogger.Error("[Analyzer] Attempting to begin new update cycle when the previous update has not ended");
             midUpdate = true;
@@ -62,6 +64,8 @@ namespace Analyzer.Profiling
             if (Analyzer.CurrentlyPaused) return;
 
             Analyzer.UpdateCycle(); // Update all our profilers, record measurements
+
+            WebSocket.WebSocket.SendData(); // send all data collected in one single tick
 
             deltaTime += Time.deltaTime;
             if (deltaTime >= updateFrequency)
