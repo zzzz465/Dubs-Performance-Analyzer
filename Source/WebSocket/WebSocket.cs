@@ -18,22 +18,12 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using HarmonyLib;
+using Analyzer.WebSocket.Protocol;
+
+using LogData = Analyzer.WebSocket.Protocol.LogData;
 
 namespace Analyzer.WebSocket
 {
-    public enum JsonDataType
-    {
-        LogData,
-        InitEntries,
-        EntryAdded,
-        EntrySwapped,
-        EntryRemoved
-    }
-    public class JsonData
-    {
-        [JsonConverter(typeof(StringEnumConverter))]
-        public JsonDataType type;
-    }
 
     public class Behaviour : WebSocketBehavior
     {
@@ -73,22 +63,19 @@ namespace Analyzer.WebSocket
         {
             var entries = GenTypes.AllTypes.Where(m => m.TryGetAttribute<Entry>(out _)).OrderBy(m => m.TryGetAttribute<Entry>().name)
                 .Select(type => type.TryGetAttribute<Entry>())
-                .Select(entry => new { name = entry.name, category = entry.category.ToString() });
+                .Select(entry => new InitEntries.Entry() { name = entry.name, category = entry.category.ToString() });
 
-            var jsonData = new JsonData() {
-                type = JsonDataType.InitEntries,
-                data = entries
-            };
+            var data = new InitEntries(entries);
 
-            SendObj(jsonData);
+            SendData(data);
         }
 
         private void OnDataCollected(JsonData data)
         {
-            SendObj(data, true);
+            SendData(data, true);
         }
 
-        private void SendObj(JsonData data, bool async = false)
+        private void SendData(JsonData data, bool async = false)
         {
             var serializedText = JsonConvert.SerializeObject(data);
             if (async)
@@ -104,32 +91,22 @@ namespace Analyzer.WebSocket
                 category = entryCategory
             };
 
-            var obj = new JsonData();
-            obj.type = JsonDataType.EntryAdded;
-            obj.data = data;
+            var obj = new EntryAdded(name, entryCategory.ToString());
 
-            SendObj(obj);
+            SendData(obj);
         }
 
         private void OnEntrySwapped(string name)
         {
-            var obj = new JsonData()
-            {
-                type = JsonDataType.EntrySwapped,
-                data = new { name }
-            };
+            var data = new EntrySwapped(name);
 
-            SendObj(obj);
+            SendData(data);
         }
         private void OnEntryRemoved(string name)
         {
-            var obj = new JsonData()
-            {
-                type = JsonDataType.EntryRemoved,
-                data = new { name }
-            };
+            var data = new EntryRemoved(name);
 
-            SendObj(obj);
+            SendData(data);
         }
     }
 
@@ -163,21 +140,16 @@ namespace Analyzer.WebSocket
                     label = profile.label,
                     key = profile.key,
                     hit = profile.hits[profile.currentIndex],
-                    time = profile.times[profile.currentIndex]
+                    time = profile.times[profile.currentIndex],
+                    tick = currentTick
                 };
 
                 list.Add(log);
             }
-            
 
-            var jsonData = new JsonData();
-            jsonData.type = JsonDataType.LogData;
-            jsonData.data = new {
-                tickLogs = list,
-                globalTick = currentTick
-            };
+            var data = new LogData(list, currentTick);
 
-            dataCollected?.Invoke(jsonData);
+            dataCollected?.Invoke(data);
 
             lastUpdatedTick = currentTick;
             

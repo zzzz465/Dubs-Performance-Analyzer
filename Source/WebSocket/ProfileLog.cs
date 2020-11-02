@@ -22,7 +22,7 @@ namespace Analyzer.WebSocket
     public struct TickLog
     {
         public string label, key;
-        public int hit;
+        public int hit, tick;
         public double time;
     }
 }

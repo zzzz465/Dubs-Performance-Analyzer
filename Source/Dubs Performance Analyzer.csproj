@@ -43,8 +43,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="WebSocket/ProfileLog.cs" />
-    <Compile Include="WebSocket/WebSocket.cs" />
     <Compile Include="Fixes\Fix.cs" />
     <Compile Include="Fixes\FixPatches.cs" />
     <Compile Include="Performance\Patches\H_DrawNamesFix.cs" />
@@ -84,6 +82,15 @@
     <Compile Include="Profiling\GUI\Panel_Graph.cs" />
     <Compile Include="Profiling\GUI\Panel_TopRow.cs" />
     <Compile Include="Profiling\Patches\Update\H_SectionLayer_ThingsDrawLayer.cs" />
+    <Compile Include="WebSocket\ProfileLog.cs" />
+    <Compile Include="WebSocket\Protocol\EntryAdded.cs" />
+    <Compile Include="WebSocket\Protocol\EntryRemoved.cs" />
+    <Compile Include="WebSocket\Protocol\EntrySwapped.cs" />
+    <Compile Include="WebSocket\Protocol\InitEntries.cs" />
+    <Compile Include="WebSocket\Protocol\JsonData.cs" />
+    <Compile Include="WebSocket\Protocol\JsonDataType.cs" />
+    <Compile Include="WebSocket\Protocol\LogData.cs" />
+    <Compile Include="WebSocket\WebSocket.cs" />
     <Compile Include="Window_Analyzer.cs" />
     <Compile Include="Profiling\GUI\Panel_Logs.cs" />
     <Compile Include="Panel_Settings.cs" />
@@ -201,6 +208,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="WebSocket\NewFolder1\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
