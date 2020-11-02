@@ -8,7 +8,14 @@ using Verse;
 
 namespace Analyzer.Profiling
 {
-    public enum Category { Settings, Tick, Update, GUI, Modder }
+    public enum Category
+    {
+        Settings = 0,
+        Tick = 1,
+        Update = 2,
+        GUI = 3,
+        Modder = 4
+    }
 
     public static class GUIController
     {
@@ -28,6 +35,9 @@ namespace Analyzer.Profiling
         public static IEnumerable<Tab> Tabs => tabs.Values;
         public static Tab Tab(Category cat) => tabs[cat];
         public static Entry EntryByName(string name) => Tabs.Where(t => t.entries.Keys.Any(e => e.name == name)).First().entries.First(e => e.Key.name == name).Key;
+        public static event Action<string, Category> entryAdded; // entryName, Category
+        public static event Action<string> entrySwapped; // entryName
+        public static event Action<string> entryRemoved; // entryName
 
         public static void InitialiseTabs()
         {
@@ -82,6 +92,7 @@ namespace Analyzer.Profiling
 
         public static void SwapToEntry(string entryName)
         {
+            Log.Message($"Swap entry {entryName}");
             if (currentEntry != null)
             {
                 currentEntry.SetActive(false);
@@ -98,10 +109,15 @@ namespace Analyzer.Profiling
             currentEntry.SetActive(true);
             currentCategory = currentEntry.category;
             currentTab = Tab(currentCategory);
+
+            Log.Message($"entrySwapped event null? {entrySwapped == null}");
+
+            entrySwapped?.Invoke(entryName);
         }
 
         public static void AddEntry(string name, Category category)
         {
+            Log.Message($"add entry {name}");
             Type myType = null;
             if (types.ContainsKey(name))
             {
@@ -112,6 +128,7 @@ namespace Analyzer.Profiling
                 myType = DynamicTypeBuilder.CreateType(name, null);
                 types.Add(name, myType);
             }
+
 
 #if DEBUG
             ThreadSafeLogger.Message($"Adding entry {name} into the category {category}");
@@ -124,12 +141,16 @@ namespace Analyzer.Profiling
             }
             else
             {
+                Log.Message($"Adding entry {entry.name} in AddEntry");
                 Tab(category).entries.Add(entry, myType);
+                entryAdded?.Invoke(name, category);
             }
         }
 
         public static void RemoveEntry(string name)
         {
+            Log.Message($"Swap entry {name}");
+
             var entry = EntryByName(name);
             entry.isPatched = false;
             entry.SetActive(false);
@@ -139,6 +160,7 @@ namespace Analyzer.Profiling
 #if DEBUG
             ThreadSafeLogger.Message($"Removing entry {name} from the category {entry.category.ToString()}");
 #endif
+            entryRemoved?.Invoke(name);
         }
     }
 }
