@@ -43,6 +43,29 @@ namespace Analyzer.WebSocket
         protected override void OnMessage(MessageEventArgs e)
         {
             base.OnMessage(e);
+            if (e.IsText)
+            {
+                var data = e.Data;
+                try
+                {
+                    var obj = JsonDataFactory.Parse(data);
+                    Verse.Log.Message(obj.ToString());
+                    switch(obj)
+                    {
+                        case ToggleGameState _:
+                            Find.TickManager.TogglePaused();
+                            break;
+
+                        case EntrySwapped entry:
+                            GUIController.SwapToEntry(entry.entryName);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Verse.Log.Message(ex.Message);
+                }
+            }
         }
 
         protected override void OnClose(CloseEventArgs e)
@@ -126,28 +149,31 @@ namespace Analyzer.WebSocket
             Verse.Log.Message($"WebSocket server listening on port {port}");
         }
 
-        public static void SendData()
+        public static void SendData(TimeSpan elapsedTime)
         {
             var currentTick = Find.TickManager.TicksGame;
             if (lastUpdatedTick == currentTick) return;
 
             var list = new List<TickLog>();
 
+            var builder = new StringBuilder();
+
             foreach(var profile in ProfileController.Profiles.Values)
             {
+                var index = (profile.currentIndex - 1) % Profiler.RECORDS_HELD;
                 var log = new TickLog
                 {
                     label = profile.label,
                     key = profile.key,
-                    hit = profile.hits[profile.currentIndex],
-                    time = profile.times[profile.currentIndex],
+                    hit = profile.hits[index],
+                    time = profile.times[index],
                     tick = currentTick
                 };
-
+                
                 list.Add(log);
             }
 
-            var data = new LogData(list, currentTick);
+            var data = new LogData(list, currentTick, elapsedTime.TotalMilliseconds);
 
             dataCollected?.Invoke(data);
 

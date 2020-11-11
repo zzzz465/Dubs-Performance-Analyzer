@@ -14,6 +14,7 @@ namespace Analyzer.WebSocket.Protocol
         InitEntries,
         EntryAdded,
         EntrySwapped,
-        EntryRemoved
+        EntryRemoved,
+        ToggleGameState // Play or Pause
     }
 }

@@ -24,6 +24,7 @@ namespace Analyzer.Profiling
         public static float updateFrequency => 1 / Settings.updatesPerSecond; // how many ms per update (capped at every 0.05ms)
 
         public static Dictionary<string, Profiler> Profiles => profiles;
+        private static Stopwatch sw = new Stopwatch();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Profiler Start(string key, Func<string> GetLabel = null, Type type = null, Def def = null, Thing thing = null, MethodBase meth = null)
@@ -57,6 +58,8 @@ namespace Analyzer.Profiling
             if (midUpdate) ThreadSafeLogger.Error("[Analyzer] Attempting to begin new update cycle when the previous update has not ended");
             midUpdate = true;
 #endif
+            
+            sw.Restart();
         }
 
         public static void EndUpdate()
@@ -65,7 +68,9 @@ namespace Analyzer.Profiling
 
             Analyzer.UpdateCycle(); // Update all our profilers, record measurements
 
-            WebSocket.WebSocket.SendData(); // send all data collected in one single tick
+            sw.Stop();
+            WebSocket.WebSocket.SendData(sw.Elapsed); // send all data collected in one single tick
+            
 
             deltaTime += Time.deltaTime;
             if (deltaTime >= updateFrequency)

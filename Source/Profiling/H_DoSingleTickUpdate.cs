@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Verse;
+using System.Diagnostics;
 
 namespace Analyzer.Profiling
 {
