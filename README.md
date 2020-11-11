@@ -1,3 +1,12 @@
+I added webSocket module to connect with my webclient page.  
+to see bunch of graphs and datas on web, not in-game.
+
+# How to use (webclient)  
+start rimworld and open this page  
+https://zzzz465.github.io/rwanalyzer-webclient/  
+it will automatically connects to your pc and show detailed informations.  
+(if nothing is visible, open analyzer and select anything in tab)  
+
 # How to Use
 
 ## Lingo
